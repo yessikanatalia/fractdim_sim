@@ -1,4 +1,4 @@
-### Libraries
+### Libraries ###
 library(dplyr)
 library(tidyr)
 library(fractaldim)
@@ -10,7 +10,10 @@ library(scales)
 library(ggforce)
 library(factoextra)
 
-### Function for fractal dimension
+### Set directory ###
+dir <- ""
+
+### Function for fractal dimension ###
 fract.d = function (data, window, method) {
   rollapply(data, width = window, 
             FUN = function (x) {
@@ -22,45 +25,29 @@ fract.d = function (data, window, method) {
   
 }
 
-mse.d = function (data, window, method) {
-  rollapply(data, width = window, 
-            FUN = function (x) {
-              sqrt(return(tryCatch(fd.estimate(x,method=method, keep.loglog=TRUE,
-                                          plot.loglog=FALSE, plot.allpoints=TRUE,
-                                          nlags="auto")$loglog[[1]][[1]][["lsq"]], 
-                              error=function(e) NA)))},
-            align="right", partial=T)
-  
-}
-
 fillNA = function(x) {
   ifelse(is.na(x),1,x)
 }
 
-qfun <- function(x, q_1=0.25, q_2=0.5, q_3=0.75){
-  q <- sort(c(quantile(x, q_1), quantile(x, q_2), quantile(x, q_3)))
-  return(c(min(x), q[1], q[2], q[3], max(x)))
-}
 
-### Example of Poisson + MA model##
-lamb_pois <- seq(0.01,0.5,0.02) #lambda for the Poisson distribution
-n <- 365 #length of series
-Day=c(1:365)
-Methods=c("boxcount", "hallwood", "variogram", "madogram")
-Window=c(7,14,21)
-
-n_list=list()
-p_list=list()
-for (i in 1:18)
+### Generate initial incidence rate ##
+lamb_pois <- seq(0.01,0.31,0.02) # lambda for the Poisson distribution
+Day <- c(1:365) # length of series
+Methods <- c("boxcount", "hallwood", "variogram", "madogram")
+Window <- c(7,14,21)
+n_list <- list()
+p_list <- list()
+for (i in 1:length (lamb_pois))
 {
   set.seed(0)
   n0 = arima.sim(list(order = c(0,0,0)), 
                  rand.gen = function(x) rpois(x, lambda = lamb_pois[i]),
-                 n = n)
+                 n = length(Day))
   nbase = data.frame(cbind(Day,n0))
   n_list[[i]] = data.frame(crossing(Day, Methods, Window))
   n_list[[i]]$n0 = nbase$n0[match(n_list[[i]]$Day,nbase$Day)]
   n_list[[i]]$sim = i
+  # Calculate fractal dimension of each time series data
   for (j in seq_along(Methods))
   {
     for (k in seq_along(Window))
@@ -71,12 +58,10 @@ for (i in 1:18)
         arrange(Day)
       n_list[[i]]$fd[n_list[[i]]$Methods==Methods[j]&n_list[[i]]$Window==Window[k]] = 
         fillNA(fract.d(subset$n0, window = as.numeric(Window[k]),method = Methods[j]))
-      # n_list[[i]]$mse[n_list[[i]]$Methods==Methods[j]&n_list[[i]]$Window==Window[k]] = 
-      #   mse.d(subset$n0, window = as.numeric(Window[k]),method = Methods[j])
     }
   }
   
-  # text to annotate graphs
+  # Text to annotate graphs
   graphLabels = n_list[[i]]%>%
     group_by(Methods,Window)%>%
     summarise(mean = round(mean(fd),2),
@@ -84,6 +69,7 @@ for (i in 1:18)
               acf = round(acf(fd,lag.max = 1, plot = FALSE,
                               na.action = na.pass)$acf[2],2) )
   
+  # Create plot of incidence rate and loess regression of local fractal dimension
   p.7 <- ggplot(n_list[[i]][n_list[[i]]$Window==7,],aes(x=Day)) + 
     geom_smooth(aes(y=fd,color=Methods), method = "loess", 
                 span=0.04, size=1, se = FALSE, method.args = list(degree=1)) +
@@ -272,28 +258,6 @@ for (i in 1:18)
                                     ncol=1, align = "v",
                                     rel_heights=c(0.2,1,1,1,1))
   
-  #p.mse = ggplot(n_list[[i]],aes(x=day)) + 
-  #  geom_point(aes(y=mse,colour=methods),size=1) +
-  #  theme_bw() +
-  #  labs(title = paste0("Lambda = ",lambda[i])) +
-  #  scale_x_continuous(name="Day") +
-  #  scale_y_continuous("RMSE",limits = c(0,10^-30)) +
-  #  theme(axis.text.y.right=element_text(color=c("black")),
-  #        axis.ticks.y.right=element_line(color=c("black")),
-  #        axis.title.y.right=element_text(color=c("black")),
-  #        axis.text.y=element_text(color=c("black")),
-  #        axis.ticks.y=element_line(color=c("black")),
-  #        axis.title.y=element_text(color=c("black")),
-  #        axis.text.x = element_text(angle = 0, hjust = 0, color = "black"),
-  #        text = element_text(size = 10),
-  #        plot.title = element_text(color = "black", size = 12, face = "bold"),
-  #        legend.key.height= unit(0.5, 'cm'),
-  #        legend.key.width= unit(0.5, 'cm'),
-  #        legend.key.size = unit(3, 'cm'),
-  #        legend.title = element_text(size = 10),
-  #        legend.text = element_text(size = 10)) +
-  #  guides(color = guide_legend(override.aes = list(size = 1.5)))+
-  #  facet_wrap(~Window, nrow=3)
 }
 
 ggsave(cowplot::plot_grid(p_list[[1]],p_list[[2]],p_list[[3]],
@@ -303,10 +267,10 @@ ggsave(cowplot::plot_grid(p_list[[1]],p_list[[2]],p_list[[3]],
                           p_list[[13]],p_list[[14]],p_list[[15]],
                           p_list[[16]],
                           ncol = 4),
-       file = paste0("G:/My Drive/COVID-19-Fractal dimension/figures/indiv.png"), 
+       file = paste0(dir, " individual_curves.png"), 
        width = 8000, height = 8000, units="px", device='png', dpi=300)
 
-### Replication function
+### Replication function ###
 cases_sim <- function (N, Lambda, Methods, Window)
 {
   nbase <- list()
@@ -348,26 +312,27 @@ cases_sim <- function (N, Lambda, Methods, Window)
   sumbase
 }
 
-### Create original dataset with 1000 replication
-N=365
-lamb_pois=seq(0.01,0.31,0.02)
-methods=c("boxcount", "hallwood", "variogram", "madogram")
-window=c(7,14,21)
+### Create initial dataset with 1000 replication ###
+N <- 365
+lamb_pois <- seq(0.01,0.31,0.02)
+methods <- c("boxcount", "hallwood", "variogram", "madogram")
+window <- c(7,14,21)
 
-# sim_list <- list()
-# for (i in 1:1000)
-# {
-#   sim_list[[i]] <- cases_sim(N=N,Lambda = lamb_pois, Methods = methods, Window = window)
-#   sim_list[[i]]$sim <- i
-# }
-# 
-# sim_long <- bind_rows(sim_list)%>%
-#   mutate(meth.class = case_when(Methods== "boxcount" ~ "Boxcount",
-#                                 Methods== "hallwood" ~ "Hall-Wood",
-#                                 Methods== "variogram" ~ "Variogram",
-#                                 Methods== "madogram" ~ "Madogram"))
-# 
-# write.csv(sim_long,"G:/My Drive/COVID-19-Fractal dimension/data/sim_long_2.csv", row.names = FALSE)
+sim_list <- list()
+for (i in 1:1000)
+{
+   sim_list[[i]] <- cases_sim(N=N,Lambda = lamb_pois, Methods = methods, Window = window)
+   sim_list[[i]]$sim <- i
+}
+
+sim_long <- bind_rows(sim_list)%>%
+                     mutate(meth.class = case_when(Methods== "boxcount" ~ "Boxcount",
+                                 Methods== "hallwood" ~ "Hall-Wood",
+                                 Methods== "variogram" ~ "Variogram",
+                                 Methods== "madogram" ~ "Madogram"))
+                     
+ 
+write.csv(sim_long,"G:/My Drive/COVID-19-Fractal dimension/data/sim_long_2.csv", row.names = FALSE)
 
 sim_long <- read.csv("G:/My Drive/COVID-19-Fractal dimension/data/sim_long_2.csv")
 
@@ -413,41 +378,32 @@ for (i in 1:length(lamb_pois))
     theme(legend.position = "none") +
     facet_wrap(~Window, nrow=3)
   
-  #p.mse.fd = ggplot(sim_long) +
-  #  geom_boxplot(aes(x=Methods,y=mean.mse,fill=Methods)) +
-  #  theme_bw() +
-  #  labs(title = paste0("Lambda = ",Lambda[i])) +
-  #  scale_y_continuous("Mean RMSE",limits = c(0,5*10^-31),
-  #                     labels = scientific_format()) +
-  #  theme(legend.position = "none") +
-  #  facet_wrap(~Window, nrow=3, scales = "free_x")
-  
   title <- ggdraw() + draw_label(paste("\u03BB","=",lamb_pois[15]), 
                                  fontface='bold')
   
-  p_list[[15]] <- cowplot::plot_grid(title, p.mean,p.var,p.acf,
+  p_list[[i]] <- cowplot::plot_grid(title, p.mean,p.var,p.acf,
                                     ncol=1, align = "v",
                                     rel_heights=c(0.15,1,1,1))
 }
 
 ggsave(cowplot::plot_grid(p_list[[1]],p_list[[2]],p_list[[3]],p_list[[4]],
                           ncol=4),
-       file = paste0("G:/My Drive/COVID-19-Fractal dimension/figures/rep.1.png"), 
+       file = paste0(dir,"rep.1.png"), 
        width = 8000, height = 6000, units="px", device='png', dpi=300)
 
 ggsave(cowplot::plot_grid(p_list[[5]],p_list[[6]],p_list[[7]],p_list[[8]],
                           ncol=4),
-       file = paste0("G:/My Drive/COVID-19-Fractal dimension/figures/rep.2.png"), 
+       file = paste0(dir,"rep.2.png"), 
        width = 8000, height = 6000, units="px", device='png', dpi=300)
 
 ggsave(cowplot::plot_grid(p_list[[9]],p_list[[10]],p_list[[11]],p_list[[12]],
                           ncol=4),
-       file = paste0("G:/My Drive/COVID-19-Fractal dimension/figures/rep.3.png"), 
+       file = paste0(dir,"rep.3.png"), 
        width = 8000, height = 6000, units="px", device='png', dpi=300)
 
 ggsave(cowplot::plot_grid(p_list[[13]],p_list[[14]],p_list[[15]],p_list[[16]],
                           ncol=4),
-       file = paste0("G:/My Drive/COVID-19-Fractal dimension/figures/rep.4.png"), 
+       file = paste0(dir,"rep.4.png"), 
        width = 8000, height = 6000, units="px", device='png', dpi=300)
 
 
