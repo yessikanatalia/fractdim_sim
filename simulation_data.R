@@ -30,9 +30,9 @@ fillNA <- function(x) {
 
 ### Generate initial incidence rate ##
 lamb_pois <- seq(0.01,0.31,0.02) # lambda for the Poisson distribution
-Day <- c(1:365) # length of series
-Methods <- c("boxcount", "hallwood", "variogram", "madogram")
-Window <- c(7,14,21)
+Day <- c(1:365) # length of time series data
+Methods <- c("boxcount", "hallwood", "variogram", "madogram") # fractal dimension estimator
+Window <- c(7,14,21) # sliding window
 n_list <- list()
 p_list <- list()
 for (i in 1:length (lamb_pois))
