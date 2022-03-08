@@ -11,7 +11,7 @@ library(factoextra)
 dir <- ""
 
 ### Load replication data ###
-sim_long <- read.csv("G:/My Drive/COVID-19-Fractal dimension/data/sim_long.csv")
+sim_long <- read.csv(paste0(dir,"sim_long.csv"))
 lamb_pois <- seq(0.01,0.31,0.02)
 methods <- c("boxcount", "hallwood", "variogram", "madogram")
 window <- c(7,14,21)
