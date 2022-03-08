@@ -13,7 +13,7 @@ library(ggforce)
 dir <- ""
 
 ### Function for fractal dimension ###
-fract.d = function (data, window, method) {
+fract.d <- function (data, window, method) {
   rollapply(data, width = window, 
             FUN = function (x) {
               return(tryCatch(fd.estimate(x,method=method, keep.loglog=TRUE,
@@ -24,10 +24,9 @@ fract.d = function (data, window, method) {
   
 }
 
-fillNA = function(x) {
+fillNA <- function(x) {
   ifelse(is.na(x),1,x)
 }
-
 
 ### Generate initial incidence rate ##
 lamb_pois <- seq(0.01,0.31,0.02) # lambda for the Poisson distribution
@@ -256,7 +255,6 @@ for (i in 1:length (lamb_pois))
   p_list[[i]] <- cowplot::plot_grid(title,p.7,p.14,p.21,p.cases,
                                     ncol=1, align = "v",
                                     rel_heights=c(0.2,1,1,1,1))
-  
 }
 
 ggsave(cowplot::plot_grid(p_list[[1]],p_list[[2]],p_list[[3]],
@@ -266,7 +264,7 @@ ggsave(cowplot::plot_grid(p_list[[1]],p_list[[2]],p_list[[3]],
                           p_list[[13]],p_list[[14]],p_list[[15]],
                           p_list[[16]],
                           ncol = 4),
-       file = paste0(dir, " individual_curves.png"), 
+       file = paste0(dir, "individual_curves.png"), 
        width = 8000, height = 8000, units="px", device='png', dpi=300)
 
 ### Replication function ###
@@ -292,9 +290,6 @@ cases_sim <- function (N, Lambda, Methods, Window)
         nbase[[i]]$fd[nbase[[i]]$Methods==Methods[j]&nbase[[i]]$Window==Window[k]] = 
           fillNA(fract.d(subset$n0, window = as.numeric(Window[k]),
                          method = Methods[j]))
-        # nbase$mse[nbase$Methods==Methods[j]&nbase$Window==Window[k]]] = 
-        #   mse.d(subset$n0, window = as.numeric(Window[k]),method = Methods[j])
-        
       }
     }
   }
@@ -307,7 +302,6 @@ cases_sim <- function (N, Lambda, Methods, Window)
               variance.fd = round(var(fd),2),
               acf.fd = round(acf(fd,lag.max = 1, plot = FALSE,
                               na.action = na.pass)$acf[2],2))
-              # mean.mse = mean(mse, na.rm=TRUE))
   sumbase
 }
 
@@ -325,10 +319,10 @@ for (i in 1:1000)
 }
 
 sim_long <- bind_rows(sim_list)%>%
-                     mutate(meth.class = case_when(Methods== "boxcount" ~ "Boxcount",
-                                 Methods== "hallwood" ~ "Hall-Wood",
-                                 Methods== "variogram" ~ "Variogram",
-                                 Methods== "madogram" ~ "Madogram"))
+  mutate(meth.class = case_when(Methods== "boxcount" ~ "Boxcount",
+                                Methods== "hallwood" ~ "Hall-Wood",
+                                Methods== "variogram" ~ "Variogram",
+                                Methods== "madogram" ~ "Madogram"))
                      
 ### Save initial dataset for further analysis ### 
-write.csv(sim_long,paste0(dir,"sim_long.csv", row.names = FALSE)
+write.csv(sim_long,paste0(dir,"sim_long.csv"), row.names = FALSE)
