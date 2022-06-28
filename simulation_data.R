@@ -59,14 +59,6 @@ for (i in 1:length (lamb_pois))
     }
   }
   
-  # Text to annotate graphs
-  graphLabels = n_list[[i]]%>%
-    group_by(Methods,Window)%>%
-    summarise(mean = round(mean(fd),2),
-              variance = round(var(fd),2),
-              acf = round(acf(fd,lag.max = 1, plot = FALSE,
-                              na.action = na.pass)$acf[2],2) )
-  
   # Create plot of incidence rate and loess regression of local fractal dimension
   p.7 <- ggplot(n_list[[i]][n_list[[i]]$Window==7,],aes(x=Day)) + 
     geom_smooth(aes(y=fd,color=Methods), method = "loess", 
@@ -87,42 +79,6 @@ for (i in 1:length (lamb_pois))
           text = element_text(size = 10),
           plot.title = element_text(color = "black", size = 12, face = "bold"),
           legend.position = "none") 
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 2,label=paste0("Mean = ",mean)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 1.8,label=paste0("Var = ",variance)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 1.6,label=paste0("ACF = ",acf)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 2,label=paste0("Mean = ",mean)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 1.8,label=paste0("Var = ",variance)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 1.6,label=paste0("ACF = ",acf)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 2,label=paste0("Mean = ",mean)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 1.8,label=paste0("Var = ",variance)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 1.6,label=paste0("ACF = ",acf)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 2,label=paste0("Mean = ",mean)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 1.8,label=paste0("Var = ",variance)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 1.6,label=paste0("ACF = ",acf)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1)
   
   p.14 <- ggplot(n_list[[i]][n_list[[i]]$Window==14,],aes(x=Day)) + 
     geom_smooth(aes(y=fd,color=Methods), method = "loess", 
@@ -143,42 +99,6 @@ for (i in 1:length (lamb_pois))
           text = element_text(size = 10),
           plot.title = element_text(color = "black", size = 12, face = "bold"),
           legend.position = "none") 
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 2,label=paste0("Mean = ",mean)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 1.8,label=paste0("Var = ",variance)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 1.6,label=paste0("ACF = ",acf)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 2,label=paste0("Mean = ",mean)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 1.8,label=paste0("Var = ",variance)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 1.6,label=paste0("ACF = ",acf)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 2,label=paste0("Mean = ",mean)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 1.8,label=paste0("Var = ",variance)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 1.6,label=paste0("ACF = ",acf)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 2,label=paste0("Mean = ",mean)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 1.8,label=paste0("Var = ",variance)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 1.6,label=paste0("ACF = ",acf)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1)
   
   p.21 <- ggplot(n_list[[i]][n_list[[i]]$Window==21,],aes(x=Day)) + 
     geom_smooth(aes(y=fd,color=Methods), method = "loess", 
@@ -199,42 +119,6 @@ for (i in 1:length (lamb_pois))
           text = element_text(size = 10),
           plot.title = element_text(color = "black", size = 12, face = "bold"),
           legend.position = "none") 
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 2,label=paste0("Mean = ",mean)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 1.8,label=paste0("Var = ",variance)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="boxcount",], 
-    #           aes(x = 100, y = 1.6,label=paste0("ACF = ",acf)), color="red" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 2,label=paste0("Mean = ",mean)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 1.8,label=paste0("Var = ",variance)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="hallwood",], 
-    #           aes(x = 180, y = 1.6,label=paste0("ACF = ",acf)), color="forestgreen" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 2,label=paste0("Mean = ",mean)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 1.8,label=paste0("Var = ",variance)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="madogram",], 
-    #           aes(x = 260, y = 1.6,label=paste0("ACF = ",acf)), color="blue" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 2,label=paste0("Mean = ",mean)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 1.8,label=paste0("Var = ",variance)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1) +
-    # geom_text(data = graphLabels[graphLabels$Methods=="variogram",], 
-    #           aes(x = 340, y = 1.6,label=paste0("ACF = ",acf)), color="purple" ,
-    #           lineheight = 0.75, size = 3, hjust=1)
   
   p.cases <- ggplot(n_list[[i]][n_list[[i]]$Window==7,],aes(x=Day)) + 
     geom_line(aes(y=n0), size=1, color = "black")+
