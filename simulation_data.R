@@ -196,6 +196,7 @@ methods <- c("boxcount", "hallwood", "variogram", "madogram")
 window <- c(7,14,21)
 
 sim_list <- list()
+set.seed(0)
 for (i in 1:1000)
 {
    sim_list[[i]] <- cases_sim(N=N,Lambda = lamb_pois, Methods = methods, Window = window)
