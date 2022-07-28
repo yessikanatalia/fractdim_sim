@@ -123,8 +123,8 @@ for (i in 1:length (lamb_pois))
   p.cases <- ggplot(n_list[[i]][n_list[[i]]$Window==7,],aes(x=Day)) + 
     geom_line(aes(y=n0), size=1, color = "black")+
     theme_bw() +
-    scale_x_continuous(name="Days") +
-    scale_y_continuous("Incidence rate", 
+    scale_x_continuous(name="Day") +
+    scale_y_continuous("Cases", 
                        limits=c(0,3)) +
     theme(axis.text.y=element_text(color=c("black")),
           axis.ticks.y=element_line(color=c("black")),
